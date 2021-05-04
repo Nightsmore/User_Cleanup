@@ -16,7 +16,8 @@ namespace User_Cleanup
         public ProfileSelect()
         {
             InitializeComponent();
-            checkedListBox1.Items.AddRange(Program.indexItems);
+            profileList_checkbox.Items.AddRange(Program.profileList.ToArray());
+            
         }
 
         // I'll want the ranges to disable the admin profile and probably "Default" 
@@ -29,13 +30,18 @@ namespace User_Cleanup
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             CheckedListBox.CheckedItemCollection coll;
-            coll = checkedListBox1.CheckedItems;
+            coll = profileList_checkbox.CheckedItems;
 
             foreach(var item in coll)
             {
-                sb.Append($"{item.ToString()}, ");
+                Profile p = (Profile) item;
+                MessageBox.Show(p.name); 
             }
-            MessageBox.Show(sb.ToString());
+        }
+
+        private void ProfileSelect_Load(object sender, EventArgs e)
+        {
+           
         }
     }
 }

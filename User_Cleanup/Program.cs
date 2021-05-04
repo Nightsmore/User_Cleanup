@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
-
+using System.IO;
 namespace User_Cleanup
 {
     static class Program
@@ -17,77 +17,77 @@ namespace User_Cleanup
         public static string root = "HKEY_LOCAL_MACHINE";
         public static string keyName = @"ProfileList";
         public static string profilesRegPath = @"Software\Microsoft\Windows NT\CurrentVersion\ProfileList";
-        public static List<Profile> profileList; 
-        // = @"Software\Microsoft\Windows NT\CurrentVersion\ProfileList";
-
-        public static string[] indexItems = null;
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+        public static List<Profile> profileList;
+        public static List<string> indexItems = new List<string>();
+ 
         [STAThread]
         static void Main()
         {
-            indexItems = RetrieveProfiles().ToArray();
+            profileList = RetrieveProfiles();
+            foreach(Profile prof in profileList)
+            {
+                indexItems.Add(prof.path);
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ProfileSelect());
         }
 
-        private static List<string> RetrieveProfiles()
+        private static List<Profile> RetrieveProfiles()
         {
-            List<string> results = new List<string>();
-
-
-
+          
             string[] keys = Registry.Users.GetSubKeyNames();
-            List<string> names = new List<string>();
+            List<Profile> results = new List<Profile>();
 
             foreach (var item in keys)
             {
                 Profile profile = new Profile();
                 try
                 {
-                    // retrieve the path
-                    profile.path = Registry.LocalMachine.OpenSubKey(profilesRegPath).OpenSubKey(item).GetValue("ProfileImagePath").ToString();
                     // retrieve the key
                     profile.registryKey = Registry.LocalMachine.OpenSubKey(profilesRegPath).OpenSubKey(item);
 
                     object testval = Registry.LocalMachine.OpenSubKey(profilesRegPath).OpenSubKey(item).GetValue("ProfileImagePath");
-     
+
+                    // set the path if it isn't null
                     if (testval != null)
                     {
-                        names.Add(testval.ToString());
+                        profile.path = testval.ToString();
                     }
+
+                    string[] arr = testval.ToString().Split('\\');
+                    profile.name = arr[arr.Length - 1];
+
+
+                    results.Add(profile);
+
                 } catch (System.NullReferenceException e)
                 {
 
                 }
-
+                
 
             }
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            foreach (var item in names)
-            {
-                sb.Append($"{item}, ");
-            }
-
-            //MessageBox.Show(sb.ToString());
-
-            return names;
+            return results;
         }
 
-        static void DeleteProfile(Profile profile)
+        public static void DeleteProfile(Profile userProfile)
         {
-            Registry.LocalMachine.DeleteSubKey(profile.registryKey.Name);
+            foreach(string file in Directory.GetFiles(userProfile.path))
+            {
+                File.Delete(file);
+            }
+            
+            Registry.LocalMachine.DeleteSubKey(userProfile.registryKey.Name);
         }
 
 
     }
 
     class Profile
-    { 
-
+    {
+        public string name; 
         public string path { get; set; }
         public RegistryKey registryKey { get; set; }
     }
