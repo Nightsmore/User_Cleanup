@@ -90,6 +90,15 @@ namespace User_Cleanup
         public string name; 
         public string path { get; set; }
         public RegistryKey registryKey { get; set; }
+
+        public string ToString()
+        {
+            return name;
+        }
+        public string ProfileName
+        {
+            get { return name; } 
+        }
     }
 
 }

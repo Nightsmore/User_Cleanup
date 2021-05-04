@@ -16,7 +16,9 @@ namespace User_Cleanup
         public ProfileSelect()
         {
             InitializeComponent();
+            profileList_checkbox.DisplayMember = "ProfileName";
             profileList_checkbox.Items.AddRange(Program.profileList.ToArray());
+            
             
         }
 
@@ -34,8 +36,7 @@ namespace User_Cleanup
 
             foreach(var item in coll)
             {
-                Profile p = (Profile) item;
-                MessageBox.Show(p.name); 
+                //Program.DeleteProfile((Profile)item); 
             }
         }
 
