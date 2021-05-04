@@ -36,7 +36,7 @@ namespace User_Cleanup
 
             foreach(var item in coll)
             {
-                //Program.DeleteProfile((Profile)item); 
+                Program.DeleteProfile((Profile)item); 
             }
         }
 

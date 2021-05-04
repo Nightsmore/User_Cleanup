@@ -35,15 +35,18 @@ namespace User_Cleanup
 
         private static List<Profile> RetrieveProfiles()
         {
-          
-            string[] keys = Registry.Users.GetSubKeyNames();
+
+            string[] keys = Registry.LocalMachine.OpenSubKey(profilesRegPath).GetSubKeyNames();
             List<Profile> results = new List<Profile>();
 
             foreach (var item in keys)
             {
                 Profile profile = new Profile();
+                
+                profile.registryKeyName = item;
                 try
                 {
+                    
                     // retrieve the key
                     profile.registryKey = Registry.LocalMachine.OpenSubKey(profilesRegPath).OpenSubKey(item);
 
@@ -74,12 +77,26 @@ namespace User_Cleanup
 
         public static void DeleteProfile(Profile userProfile)
         {
+
+            // Need to add an idication that items are actually deleting
+            try
+            {
+                Registry.LocalMachine.OpenSubKey(profilesRegPath,true).DeleteSubKey(userProfile.registryKeyName, false);
+            }
+            catch (System.ArgumentException)
+            {
+                MessageBox.Show("Subkey Error", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (System.Exception)
+            {
+                // Do nothing
+            }
+
             foreach(string file in Directory.GetFiles(userProfile.path))
             {
                 File.Delete(file);
             }
-            
-            Registry.LocalMachine.DeleteSubKey(userProfile.registryKey.Name);
+              
         }
 
 
@@ -87,16 +104,22 @@ namespace User_Cleanup
 
     class Profile
     {
-        public string name; 
+        public string name;
         public string path { get; set; }
         public RegistryKey registryKey { get; set; }
-
+        public string registryKeyName { get; set; }
+        
+        public Profile()
+        {
+           
+        }
         public string ToString()
         {
             return name;
         }
         public string ProfileName
         {
+      
             get { return name; } 
         }
     }
