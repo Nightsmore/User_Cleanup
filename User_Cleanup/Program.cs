@@ -79,6 +79,8 @@ namespace User_Cleanup
         {
 
             // Need to add an idication that items are actually deleting
+            // Create new progress bar
+            
             try
             {
                 Registry.LocalMachine.OpenSubKey(profilesRegPath,true).DeleteSubKey(userProfile.registryKeyName, false);
@@ -92,13 +94,47 @@ namespace User_Cleanup
                 // Do nothing
             }
 
-            foreach(string file in Directory.GetFiles(userProfile.path))
+            List<string> files = GetDirectoryContents(userProfile.path);
+
+            foreach (string file in files)
             {
-                File.Delete(file);
+                if (File.GetAttributes(file) == FileAttributes.Directory)
+                {
+                    Directory.Delete(file);
+                }
+                else
+                {
+                    File.Delete(file);
+                }
+
             }
-              
+
         }
 
+        public static List<string> GetDirectoryContents(string path)
+        {
+            // Create a bar for getting directory contents(??)
+            
+            List<string> files = new List<string>();
+            try
+            {
+                foreach(string file in Directory.GetFiles(path))
+                {
+                    files.Add(file);
+                }
+
+                foreach(string directory in Directory.GetDirectories(path))
+                {
+                    files.AddRange(Directory.GetFiles(path));
+                }
+
+            }catch(Exception e)
+            {
+                MessageBox.Show(e.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            return files;
+        }
 
     }
 
