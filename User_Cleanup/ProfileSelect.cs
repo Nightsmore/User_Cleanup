@@ -17,8 +17,7 @@ namespace User_Cleanup
         {
             InitializeComponent();
             profileList_checkbox.DisplayMember = "ProfileName";
-            profileList_checkbox.Items.AddRange(Program.profileList.ToArray());
-            
+            profileList_checkbox.Items.AddRange(Program.profileList.ToArray());    
             
         }
 

@@ -125,7 +125,13 @@ namespace User_Cleanup
 
             // Need to add an idication that items are actually deleting
             // Create new progress bar
-            
+
+            var fileSecurity = Directory.GetAccessControl(userProfile.path);
+            fileSecurity.AddAccessRule(new FileSystemAccessRule("administrators", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit,
+                PropagationFlags.InheritOnly, AccessControlType.Allow));
+            fileSecurity.AddAccessRule(new FileSystemAccessRule("administrators", FileSystemRights.FullControl, InheritanceFlags.ObjectInherit,
+                PropagationFlags.InheritOnly, AccessControlType.Allow));
+
             try
             {
                 if(userProfile.registryKey != null)
@@ -140,20 +146,53 @@ namespace User_Cleanup
                 // Do nothing
             }
 
-            List<string> files = GetDirectoryContents(userProfile.path);
+            List<string> directories = GetDirectoryContents(userProfile.path);
             
+            // This gets the files in the directories
             try
             {
+                List<string> appended = new List<string>();
+                appended.AddRange(directories);
+                bool fin = false;
                 
-                foreach(string file in files)
+                do
                 {
+                    fin = true;
+                    foreach (string directory in directories)
+                    {
+                        
 
-                }
-            
+                        FileAttributes fa = File.GetAttributes(directory);
+                        // Clear attributes
+                        if (fa.HasFlag(FileAttributes.Hidden))
+                        {
+                            printf("removing hidden stuff");
+                            var info = new DirectoryInfo(directory);
+                            info.Attributes &= ~FileAttributes.Hidden;
+                        }
+
+
+                        if (fa.HasFlag(FileAttributes.ReadOnly))
+                        {
+                            printf("changing to not read only");
+                            var info = new DirectoryInfo(directory);
+                            info.Attributes &= ~FileAttributes.ReadOnly;
+                        }
+                        try
+                        {
+                            appended.AddRange(Directory.GetFiles(directory));
+                        }
+                        catch (UnauthorizedAccessException _ex)
+                        {
+                            fin = false;
+                            Directory.SetAccessControl(directory, fileSecurity);
+                        }
+                    }
+                } while (!fin);
             }
-            catch (Exception e)
+            catch (UnauthorizedAccessException _ex)
             {
-                MessageBox.Show(e.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // ?
             }
             
 
@@ -238,7 +277,6 @@ namespace User_Cleanup
                                             info.Attributes &= ~FileAttributes.ReadOnly;
                                         }
                                     }
-
                                 }
                             }
                         }
@@ -249,16 +287,6 @@ namespace User_Cleanup
                         Directory.SetAccessControl(subDir, fileSecurity);
                         fin = false;
                     }
-
-
-                    /*
-                     * 
-                    if (!files.Contains(subDir)) 
-                    {
-                        files.AddRange(Directory.GetDirectories(subDir));
-                    }
-
-                    */
 
                 }
                 files = updated;
@@ -272,32 +300,32 @@ namespace User_Cleanup
         {
             Console.WriteLine(str);
         }
-
     }
-
-
 }
 
 class Profile
-    {
-        public string name;
-        public string path { get; set; }
-        public RegistryKey registryKey { get; set; }
-        public string registryKeyName { get; set; }
+{
+    public string name;
+    public string path { get; set; }
+    public RegistryKey registryKey { get; set; }
+    public string registryKeyName { get; set; }
         
-        public Profile()
-        {
+        
+    public Profile()     
+    {
            
-        }
-        public string ToString()
-        {
-            return name;
-        }
-        public string ProfileName
-        {
-      
-            get { return name; } 
-        }
+        
     }
-
+        
+    public string ToString()  
+    { 
+        return name;
+    }
+        
+    public string ProfileName  
+    {
+        get { return name; }    
+    }
 }
+
+
