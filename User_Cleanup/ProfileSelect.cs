@@ -29,14 +29,21 @@ namespace User_Cleanup
 
         private void prof_clear_btn_Click(object sender, EventArgs e)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            CheckedListBox.CheckedItemCollection coll;
-            coll = profileList_checkbox.CheckedItems;
-
-            foreach(var item in coll)
+            var mb = MessageBox.Show($"Are you sure you wish to delete the selected profiles: {profileList_checkbox.CheckedItems}?", "Alert!",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            
+            if(mb == DialogResult.Yes)
             {
-                Program.DeleteProfile((Profile)item); 
+                StringBuilder sb = new System.Text.StringBuilder();
+                CheckedListBox.CheckedItemCollection coll;
+                coll = profileList_checkbox.CheckedItems;
+
+                foreach (var item in coll)
+                {
+                    Program.DeleteProfile((Profile)item);
+                }
             }
+            
         }
 
         private void ProfileSelect_Load(object sender, EventArgs e)
