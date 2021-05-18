@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSysTools.cs" />
+    <Compile Include="Profile.cs" />
     <Compile Include="ProfileSelect.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -53,9 +55,18 @@
       <DependentUpon>ProfileSelect.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="ProgressConsole.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProgressConsole.Designer.cs">
+      <DependentUpon>ProgressConsole.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ProfileSelect.resx">
       <DependentUpon>ProfileSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProgressConsole.resx">
+      <DependentUpon>ProgressConsole.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

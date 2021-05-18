@@ -29,22 +29,39 @@ namespace User_Cleanup
 
         private void prof_clear_btn_Click(object sender, EventArgs e)
         {
+            ProgressOutput progOut = new ProgressOutput();
+            progOut.Activate();
+            progOut.Visible = true;
+
+            progOut.ProfileProccessBar.Style = ProgressBarStyle.Continuous;
+            
+            // display message box for confirmation
             var mb = MessageBox.Show($"Are you sure you wish to delete the selected profiles: {profileList_checkbox.CheckedItems}?", "Alert!",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             
             if(mb == DialogResult.Yes)
             {
+                progOut.WindowConsole += "Removing profiles...\n";
                 StringBuilder sb = new System.Text.StringBuilder();
                 CheckedListBox.CheckedItemCollection coll;
                 coll = profileList_checkbox.CheckedItems;
 
+                // Convert this to asyncronous tasks
+                // Add tasks to a list and get object totals 
+                // set total to max length for progbar
+                
                 foreach (var item in coll)
                 {
-                    Program.DeleteProfile((Profile)item);
+                    progOut.WindowConsole += $"processing {item}";
+                    //Program.DeleteProfile((Profile)item);
                 }
             }
+
+            progOut.CloseButtonEnabled = true;
             
         }
+
+        
 
         private void ProfileSelect_Load(object sender, EventArgs e)
         {
